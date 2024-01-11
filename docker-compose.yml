@@ -28,6 +28,11 @@ services:
       HASURA_GRAPHQL_CONSOLE_ASSETS_DIR: /srv/console-assets
       ## uncomment next line to set an admin secret
       #HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_PASSWORD}
+  postgrest:
+    image: postgrest/postgrest:v12.0.2
+    environment:
+      PGRST_DB_URI: "postgres://postgres:${POSTGRES_PASSWORD}@postgres:5432/postgres"
+      PGRST_DB_ANON_ROLE: postgres # insecure
   wizard:
     build:
       context: wizard
