@@ -15,11 +15,13 @@ docker compose --file setup/docker-compose.yml run --rm setup
 docker compose --env-file secrets/docker up --build
 ```
 
-## Hasura
+## Hasura setup
 
+1. Connect to [Hasura](http://localhost:8000/hasura).
 1. Add the Postgres database using the environmental variable `PG_DATABASE_URL`
-2. Expose all tables and relations in [Hasura](http://localhost:8000/hasura).
-3. Add the following mutation and create a REST endpoint named `import-data`:
+3. Track all tables and views in the public schema
+4. Track all foreign-key relationship in the public schema
+5. Create a REST endpoint named `import_data`, with `import-data` as URL Path, `POST` as method, and with the following GraphQL Request:
 
 ```
 mutation import_data($data: [elvedata_insert_input!]!) {
@@ -32,3 +34,9 @@ mutation import_data($data: [elvedata_insert_input!]!) {
   }
 }
 ```
+
+## Usage
+
+The wizard is an example application to upload data into the database, available at [localhost:8000](http://localhost:8000).
+
+PostgREST interface is available at [localhost:8000/postgrest/](http://localhost:8000/postgrest/). [API documentation](https://postgrest.org/en/stable/references/api.html) is available as well.
