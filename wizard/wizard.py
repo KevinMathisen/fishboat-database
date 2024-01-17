@@ -32,26 +32,47 @@ elvedata_mapping = {
     "Mannskap1": "mannskap1",
     "Mannskap2": "mannskap2",
     "Mannskap3": "mannskap3",
-    "Prosjektnavn": "prosjekt",
+    "Prosjektnavn": "prosjektnavn",
     "Prosjektnummer": "prosjektnummer",
     "Kommentar": "kommentar",
-]
-stasjonsdata_mapping = {
-'Stasjon': 'stasjon', 'Båttype': 'baattype', 'Dato': 'dato', 'Klokkeslett start': 'klokkeslett_start', 'Lat start': 'lat_start', 'Long start': 'lon_start', 'Lat stopp': 'lat_stop', 'Long stopp': 'lon_stop', 'Dominerende elvetype': 'dominerende_elvetype', 'Vær': 'vaer', 'Vanntemp (Celsius)': 'vanntemp', 'Lufttemperatur (Celsius)': 'lufttemperatur', 'Ledningsevne (µs/cm)': 'ledningsevne', 'Transektlengde (m)': 'transektlengde', 'Sekunder fisket (s)': 'sekunder_fisket', 'Volt': 'volt', 'Puls (DC)': 'puls', 'Display': 'display', 'Gpx file?': 'gpx_file', 'Stasjonsbeskrivelse': 'stasjonsbeskrivelse', 'Kommentarer til fiske (observasjoner osv)': 'kommentarer'
 }
-individdata_header = [
-    "id",
-    "stasjon",
-    "omgang",
-    "art",
-    "lengde",
-    "antall",
-    "kjoenn",
-    "alder",
-    "gjenutsatt",
-    "proevetatt",
-    "kommentar",
-]
+
+stasjonsdata_mapping = {
+    "Stasjonsnummer": "stasjon",
+    "Båttype": "baattype",
+    "Dato": "dato",
+    "Klokkeslett start": "klokkeslett_start",
+    "Lat start": "lat_start",
+    "Long start": "lon_start",
+    "Lat stopp": "lat_stop",
+    "Long stopp": "lon_stop",
+    "Dominerende elvetype": "dominerende_elvetype",
+    "Vær": "vaer",
+    "Vanntemp (Celsius)": "vanntemp",
+    "Lufttemperatur (Celsius)": "lufttemperatur",
+    "Ledningsevne (µs/cm)": "ledningsevne",
+    "Transektlengde (m)": "transektlengde",
+    "Sekunder fisket (s)": "sekunder_fisket",
+    "Volt": "volt",
+    "Puls (DC)": "puls",
+    "Display": "display",
+    "Gpx file?": "gpx_file",
+    "Stasjonsbeskrivelse": "stasjonsbeskrivelse",
+    "Kommentarer til fiske (observasjoner osv)": "kommentar",
+}
+
+individdata_mapping = {
+    "Stasjonsnummer": "stasjon",
+    "Omgang": "omgang",
+    "Art": "art",
+    "Lengde": "lengde",
+    "Antall": "antall",
+    "Kjønn": "kjoenn",
+    "Alder": "alder",
+    "Gjenutsatt (ja/nei)": "gjenutsatt",
+    "Prøvetype": "proevetype",
+    "Kommentar": "kommentar",
+}
 
 
 def wizard():
@@ -94,8 +115,6 @@ def wizard():
                 del elvedata[column_name]
                 if not mannskap_value:
                     continue
-                if mannskap_value == "Ukjent":
-                    continue
                 mannskap.append(mannskap_value)
             # Prepare and append
             elvedata["prosjektnummer"] = str(elvedata["prosjektnummer"])
@@ -105,7 +124,7 @@ def wizard():
         rows = workbook["Stasjonsdata"].iter_rows()
         header = [cell.value for cell in next(rows) if cell.value]
         logging.debug(header)
-        header = stasjonsdata_header
+        header = [stasjonsdata_mapping[column] for column in header]
         for row in rows:
             row = [cell.value for cell in row]
             logging.debug(row)
@@ -139,7 +158,7 @@ def wizard():
         rows = workbook["Individdata"].iter_rows()
         header = [cell.value for cell in next(rows) if cell.value]
         logging.debug(header)
-        header = individdata_header
+        header = [individdata_mapping[column] for column in header]
         for row in rows:
             row = [cell.value for cell in row]
             logging.debug(row)
@@ -147,13 +166,12 @@ def wizard():
                 continue
             individdata = dict(zip(header, row))
             # Boolean
-            for column in ["gjenutsatt", "proevetatt"]:
+            for column in ["gjenutsatt"]:
                 if not individdata[column]:
                     continue
                 individdata[column] = individdata[column].lower() == "ja"
             # Drop useless columns
             stasjon_index = int(individdata["stasjon"])
-            del individdata["id"]
             del individdata["stasjon"]
             # Store row
             data[0]["stasjonsdata"]["data"][stasjon_index - 1]["individdata"][

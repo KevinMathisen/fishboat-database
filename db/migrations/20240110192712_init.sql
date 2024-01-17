@@ -11,7 +11,7 @@ create table elvedata(
     vannfoering integer,
     skipper text not null,
     mannskap text[],
-    prosjekt text,
+    prosjektnavn text,
     prosjektnummer text,
     kommentar text,
     unique (dato, elv)
@@ -35,20 +35,20 @@ create table stasjonsdata(
     display decimal,
     gpx_file bool,
     stasjonsbeskrivelse text,
-    kommentarer text
+    kommentar text
 );
 
 create table individdata(
     id integer primary key generated always as identity,
     stasjon integer references stasjonsdata(id) not null,
     omgang integer,
-    art text,
+    art text not null,
     lengde integer,
     antall integer,
     kjoenn text,
     alder integer,
     gjenutsatt bool,
-    proevetatt bool,
+    proevetype text,
     kommentar text
 );
 
