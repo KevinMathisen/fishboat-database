@@ -125,6 +125,7 @@ def wizard():
         header = [cell.value for cell in next(rows) if cell.value]
         logging.debug(header)
         header = [stasjonsdata_mapping[column] for column in header]
+        stasjoner = []
         for row in rows:
             row = [cell.value for cell in row]
             logging.debug(row)
@@ -146,12 +147,13 @@ def wizard():
                 del stasjonsdata["lat" + suffix]
             if stasjonsdata["display"] == "na":
                 stasjonsdata["display"] = None
+            # Prepare
+            stasjoner.append(stasjonsdata["stasjon"])
+            stasjonsdata["individdata"] = {"data": []}
             # Drop useless columns
             del stasjonsdata["stasjon"]
             del stasjonsdata["baattype"]
             del stasjonsdata["dato"]
-            # Prepare
-            stasjonsdata["individdata"] = {"data": []}
             # Store row
             data[0]["stasjonsdata"]["data"].append(stasjonsdata)
         # Individdata
@@ -170,11 +172,12 @@ def wizard():
                 if not individdata[column]:
                     continue
                 individdata[column] = individdata[column].lower() == "ja"
+            # Prepare
+            stasjon_index = stasjoner.index(individdata["stasjon"])
             # Drop useless columns
-            stasjon_index = int(individdata["stasjon"])
             del individdata["stasjon"]
             # Store row
-            data[0]["stasjonsdata"]["data"][stasjon_index - 1]["individdata"][
+            data[0]["stasjonsdata"]["data"][stasjon_index]["individdata"][
                 "data"
             ].append(individdata)
         logging.debug(data)
