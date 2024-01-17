@@ -21,44 +21,24 @@ PROCEDURE_URL = os.getenv(
 logging.debug(os.environ)
 
 
-elvedata_header = [
-    "dato",
-    "elv",
-    "baattype",
-    "lat",
-    "lon",
-    "vannfoering",
-    "skipper",
-    "mannskap1",
-    "mannskap2",
-    "mannskap3",
-    "prosjekt",
-    "prosjektnummer",
-    "kommentar",
+elvedata_mapping = {
+    "Dato": "dato",
+    "Elv": "elv",
+    "Båttype": "baattype",
+    "Lat": "lat",
+    "Long": "lon",
+    "Vannføring (sildre.nve.no)": "vannfoering",
+    "Skipper": "skipper",
+    "Mannskap1": "mannskap1",
+    "Mannskap2": "mannskap2",
+    "Mannskap3": "mannskap3",
+    "Prosjektnavn": "prosjekt",
+    "Prosjektnummer": "prosjektnummer",
+    "Kommentar": "kommentar",
 ]
-stasjonsdata_header = [
-    "stasjon",
-    "baattype",
-    "dato",
-    "klokkeslett_start",
-    "lat_start",
-    "lon_start",
-    "lat_stop",
-    "lon_stop",
-    "dominerende_elvetype",
-    "vaer",
-    "vanntemp",
-    "lufttemperatur",
-    "ledningsevne",
-    "transektlengde",
-    "sekunder_fisket",
-    "volt",
-    "puls",
-    "display",
-    "gpx_file",
-    "stasjonsbeskrivelse",
-    "kommentarer",
-]
+stasjonsdata_mapping = {
+'Stasjon': 'stasjon', 'Båttype': 'baattype', 'Dato': 'dato', 'Klokkeslett start': 'klokkeslett_start', 'Lat start': 'lat_start', 'Long start': 'lon_start', 'Lat stopp': 'lat_stop', 'Long stopp': 'lon_stop', 'Dominerende elvetype': 'dominerende_elvetype', 'Vær': 'vaer', 'Vanntemp (Celsius)': 'vanntemp', 'Lufttemperatur (Celsius)': 'lufttemperatur', 'Ledningsevne (µs/cm)': 'ledningsevne', 'Transektlengde (m)': 'transektlengde', 'Sekunder fisket (s)': 'sekunder_fisket', 'Volt': 'volt', 'Puls (DC)': 'puls', 'Display': 'display', 'Gpx file?': 'gpx_file', 'Stasjonsbeskrivelse': 'stasjonsbeskrivelse', 'Kommentarer til fiske (observasjoner osv)': 'kommentarer'
+}
 individdata_header = [
     "id",
     "stasjon",
@@ -90,7 +70,7 @@ def wizard():
         rows = workbook["Elvedata"].iter_rows()
         header = [cell.value for cell in next(rows) if cell.value]
         logging.debug(header)
-        header = elvedata_header
+        header = [elvedata_mapping[column] for column in header]
         for row in rows:  # TODO: max 1 row!
             row = [cell.value for cell in row]
             logging.debug(row)
