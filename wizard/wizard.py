@@ -10,7 +10,8 @@ import orjson
 import requests
 from pywebio import start_server
 from pywebio.input import actions, file_upload, input_group
-from pywebio.output import clear, put_error, put_success, put_text
+from pywebio.output import clear, put_button, put_error, put_success, put_text
+from pywebio.session import run_js
 
 logging.basicConfig(level=os.getenv("LOGGING", "INFO"))
 
@@ -206,6 +207,8 @@ def wizard():
         put_error(str(instance) + "\n" + response.text)
     else:
         put_success("Data has been imported sucessfully.")
+    finally:
+        put_button("Upload new data", onclick=lambda: run_js("window.location.reload()"))
 
 
 if __name__ == "__main__":
