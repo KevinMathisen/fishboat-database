@@ -8,6 +8,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
   dbmate:
+    image: ghcr.io/ninanor/fishboat-database-dbmate:main
     build: db
     environment:
       DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@postgres:5432/postgres?sslmode=disable
@@ -34,6 +35,7 @@ services:
       PGRST_DB_URI: "postgres://postgres:${POSTGRES_PASSWORD}@postgres:5432/postgres"
       PGRST_DB_ANON_ROLE: postgres # insecure
   wizard:
+    image: ghcr.io/ninanor/fishboat-database-wizard:main
     build:
       context: wizard
     environment:
@@ -42,6 +44,7 @@ services:
     tty: true
     stdin_open: true
   nginx:
+    image: ghcr.io/ninanor/fishboat-database-nginx:main
     build: nginx
     ports:
       - 8000:80
