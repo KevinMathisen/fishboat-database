@@ -1,10 +1,11 @@
 -- migrate:up
 
 create extension if not exists postgis;
+create extension if not exists btree_gist;
 
 create table elvedata(
     id integer primary key generated always as identity,
-    dato date not null,
+    dato daterange not null,
     elv text not null,
     baattype text not null,
     posisjon geometry(point, 4326) not null,
@@ -13,16 +14,20 @@ create table elvedata(
     mannskap text[],
     prosjektnavn text,
     prosjektnummer text,
-    kommentar text,
-    unique (dato, elv)
+    kommentar text
+);
+
+alter table elvedata add exclude using gist (
+    dato with &&,
+    id with =
 );
 
 create table stasjonsdata(
     id integer primary key generated always as identity,
     elvedata integer references elvedata(id) not null,
-    klokkeslett_start time,
+    klokkeslett_start timestamp not null,
     posisjon_start geometry(point, 4326) not null,
-    posisjon_stop geometry(point, 4326) not null,
+    posisjon_stopp geometry(point, 4326) not null,
     dominerende_elvetype text,
     vaer text,
     vanntemp decimal,
