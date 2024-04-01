@@ -25,6 +25,7 @@ alter table elvedata add exclude using gist (
 create table stasjonsdata(
     id integer primary key generated always as identity,
     elvedata integer references elvedata(id) not null,
+    stasjonnummer integer not null,
     klokkeslett_start timestamp not null,
     posisjon_start geometry(point, 4326) not null,
     posisjon_stopp geometry(point, 4326) not null,
