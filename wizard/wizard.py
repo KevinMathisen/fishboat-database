@@ -147,7 +147,10 @@ def wizard():
                 continue
             stasjonsdata = dict(zip(header, row))
             # time + date -> klokkeslett_start
-            stasjonsdata["klokkeslett_start"] = datetime.combine(stasjonsdata["dato"], stasjonsdata["klokkeslett_start"])
+            if stasjonsdata["klokkeslett_start"] is None:
+                stasjonsdata["klokkeslett_start"] = datetime.combine(stasjonsdata["dato"], time())
+            else:
+                stasjonsdata["klokkeslett_start"] = datetime.combine(stasjonsdata["dato"], stasjonsdata["klokkeslett_start"])
             # lat/lon -> posisjon
             for suffix in ["_start", "_stopp"]:
                 stasjonsdata["lon" + suffix] = float(stasjonsdata["lon" + suffix])
