@@ -12,6 +12,7 @@ from pywebio import start_server
 from pywebio.input import actions, file_upload, input_group
 from pywebio.output import clear, put_button, put_error, put_success, put_text
 from pywebio.session import run_js
+from datetime import datetime, time, date
 
 logging.basicConfig(level=os.getenv("LOGGING", "INFO"))
 
@@ -23,30 +24,31 @@ logging.debug(os.environ)
 
 
 elvedata_mapping = {
-    "Dato": "dato",
+    "Start dato": "start_dato",
+    "Slutt dato": "slutt_dato",
     "Elv": "elv",
     "Båttype": "baattype",
     "Lat": "lat",
     "Long": "lon",
-    "Vannføring (sildre.nve.no)": "vannfoering",
+    "Vannføring (sildre.no)": "vannfoering",
     "Skipper": "skipper",
     "Mannskap1": "mannskap1",
     "Mannskap2": "mannskap2",
     "Mannskap3": "mannskap3",
-    "Prosjektnavn": "prosjektnavn",
+    "Prosjekt": "prosjektnavn",
     "Prosjektnummer": "prosjektnummer",
     "Kommentar": "kommentar",
 }
 
 stasjonsdata_mapping = {
-    "Stasjonsnummer": "stasjon",
+    "Stasjon": "stasjonnummer",
     "Båttype": "baattype",
     "Dato": "dato",
     "Klokkeslett start": "klokkeslett_start",
     "Lat start": "lat_start",
     "Long start": "lon_start",
-    "Lat stopp": "lat_stop",
-    "Long stopp": "lon_stop",
+    "Lat stopp": "lat_stopp",
+    "Long stopp": "lon_stopp",
     "Dominerende elvetype": "dominerende_elvetype",
     "Vær": "vaer",
     "Vanntemp (Celsius)": "vanntemp",
@@ -63,7 +65,8 @@ stasjonsdata_mapping = {
 }
 
 individdata_mapping = {
-    "Stasjonsnummer": "stasjon",
+    "ID": "id",
+    "Stasjon": "stasjon",
     "Omgang": "omgang",
     "Art": "art",
     "Lengde": "lengde",
@@ -71,10 +74,15 @@ individdata_mapping = {
     "Kjønn": "kjoenn",
     "Alder": "alder",
     "Gjenutsatt (ja/nei)": "gjenutsatt",
-    "Prøvetype": "proevetype",
+    "Prøvetatt (ja/nei)": "proevetype",
     "Kommentar": "kommentar",
 }
 
+def create_daterange(start_date, end_date):
+    # create a daterange string for Postgres
+    start = start_date.strftime("%Y-%m-%d")
+    end = end_date.strftime("%Y-%m-%d")
+    return f"[{start}, {end}]"
 
 def wizard():
     user_inputs = input_group(
@@ -99,6 +107,10 @@ def wizard():
             if not any(row):
                 continue
             elvedata = dict(zip(header, row))
+            # start/enddate -> dato
+            elvedata["dato"] = create_daterange(elvedata["start_dato"], elvedata["slutt_dato"])
+            del elvedata["start_dato"]
+            del elvedata["slutt_dato"] 
             # lat/lon -> posisjon
             elvedata["lon"] = float(elvedata["lon"])
             elvedata["lat"] = float(elvedata["lat"])
@@ -117,6 +129,7 @@ def wizard():
                 if not mannskap_value:
                     continue
                 mannskap.append(mannskap_value)
+            elvedata["mannskap"] = mannskap
             # Prepare and append
             elvedata["prosjektnummer"] = str(elvedata["prosjektnummer"])
             elvedata["stasjonsdata"] = {"data": []}
@@ -133,8 +146,10 @@ def wizard():
             if not any(row):
                 continue
             stasjonsdata = dict(zip(header, row))
+            # time + date -> klokkeslett_start
+            stasjonsdata["klokkeslett_start"] = datetime.combine(stasjonsdata["dato"], stasjonsdata["klokkeslett_start"])
             # lat/lon -> posisjon
-            for suffix in ["_start", "_stop"]:
+            for suffix in ["_start", "_stopp"]:
                 stasjonsdata["lon" + suffix] = float(stasjonsdata["lon" + suffix])
                 stasjonsdata["lat" + suffix] = float(stasjonsdata["lat" + suffix])
                 stasjonsdata["posisjon" + suffix] = {
@@ -149,10 +164,9 @@ def wizard():
             if stasjonsdata["display"] == "na":
                 stasjonsdata["display"] = None
             # Prepare
-            stasjoner.append(stasjonsdata["stasjon"])
+            stasjoner.append(stasjonsdata["stasjonnummer"])
             stasjonsdata["individdata"] = {"data": []}
             # Drop useless columns
-            del stasjonsdata["stasjon"]
             del stasjonsdata["baattype"]
             del stasjonsdata["dato"]
             # Store row
@@ -177,6 +191,7 @@ def wizard():
             stasjon_index = stasjoner.index(individdata["stasjon"])
             # Drop useless columns
             del individdata["stasjon"]
+            del individdata["id"]
             # Store row
             data[0]["stasjonsdata"]["data"][stasjon_index]["individdata"][
                 "data"
