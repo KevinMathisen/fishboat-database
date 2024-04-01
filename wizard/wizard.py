@@ -98,9 +98,9 @@ def wizard():
         workbook = openpyxl.load_workbook(io.BytesIO(file["content"]), data_only=True)
         # Elvedata
         rows = workbook["Elvedata"].iter_rows()
-        header = [cell.value for cell in next(rows) if cell.value]
+        header = [cell.value.strip() for cell in next(rows) if cell.value]
         logging.debug(header)
-        header = [elvedata_mapping[column] for column in header]
+        header = [elvedata_mapping[column.strip()] for column in header]
         for row in rows:  # TODO: max 1 row!
             row = [cell.value for cell in row]
             logging.debug(row)
@@ -136,9 +136,9 @@ def wizard():
             data.append(elvedata)
         # Stasjonsdata
         rows = workbook["Stasjonsdata"].iter_rows()
-        header = [cell.value for cell in next(rows) if cell.value]
+        header = [cell.value.strip() for cell in next(rows) if cell.value]
         logging.debug(header)
-        header = [stasjonsdata_mapping[column] for column in header]
+        header = [stasjonsdata_mapping[column.strip()] for column in header]
         stasjoner = []
         for row in rows:
             row = [cell.value for cell in row]
@@ -173,9 +173,9 @@ def wizard():
             data[0]["stasjonsdata"]["data"].append(stasjonsdata)
         # Individdata
         rows = workbook["Individdata"].iter_rows()
-        header = [cell.value for cell in next(rows) if cell.value]
+        header = [cell.value.strip() for cell in next(rows) if cell.value]
         logging.debug(header)
-        header = [individdata_mapping[column] for column in header]
+        header = [individdata_mapping[column.strip()] for column in header]
         for row in rows:
             row = [cell.value for cell in row]
             logging.debug(row)
