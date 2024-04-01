@@ -36,7 +36,7 @@ server {
         proxy_set_header Connection $connection_upgrade;
     }
 
-    location ~ ^/hasura/?(.*)$ {
+    location ~ ^/console/?(.*)$ {
         set $upstream http://graphql-engine:8080;
         proxy_pass $upstream/$1$is_args$args;
     }
