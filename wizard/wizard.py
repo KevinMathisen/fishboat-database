@@ -185,6 +185,8 @@ def wizard():
             if not any(row):
                 continue
             individdata = dict(zip(header, row))
+            # Remove leading and trailing whitespace from species
+            individdata["art"] = individdata["art"].strip()
             # Boolean
             for column in ["gjenutsatt"]:
                 if not individdata[column]:
